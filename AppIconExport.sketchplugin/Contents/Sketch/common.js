@@ -26,6 +26,13 @@ var app = [NSApplication sharedApplication],
 	sketchVersion = getMajorVersion();
 
 
+var fileFormat = function(text){
+    var t =  strip(text).replace(/[^a-zA-Z0-9]/g,'_').replace(/__+/g,'_').toLowerCase();
+    if (is_numeric(t.charAt(0)))
+        return "n" + t;
+    return t;
+}
+
 //--------------------------------------
 //  Parse Context - Sketch 3.3 onwards
 //--------------------------------------
@@ -40,7 +47,7 @@ function parseContext(context, remote) {
 	scriptPath = context.scriptPath;
 	scriptURL = context.scriptURL;
 	plugin = context.plugin;
-	
+
 	currentPage = [doc currentPage];
 	currentArtboard = [currentPage currentArtboard];
 	stage = currentArtboard ? currentArtboard : currentPage;
@@ -52,7 +59,7 @@ function parseContext(context, remote) {
 	scriptFolder = [scriptPath stringByDeletingLastPathComponent];
 }
 
-function sketchLog(l) { 
+function sketchLog(l) {
 	if (debug) log(l);
 }
 
@@ -69,7 +76,7 @@ function getMajorVersion() {
 	const version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] + ""
     return version.substr(0, 3)
 }
-	
+
 //--------------------------------------
 //  User interaction
 //--------------------------------------
@@ -84,7 +91,7 @@ function showDialog (message, title, OKHandler) {
   	var icon = [[NSImage alloc] initByReferencingFile:iconPath];
   	[alert setIcon:icon];
   }
-  var responseCode = [alert runModal];	
+  var responseCode = [alert runModal];
   if(OKHandler != nil && responseCode == 0) OKHandler();
 }
 
@@ -129,7 +136,7 @@ function isShape(layer){
 
 function addArtboard(name, rect, page) {
 	var artboard = [MSArtboardGroup new];
-	
+
 	[artboard setName:name];
 	setSize(artboard, rect.width, rect.height);
 	setPosition(artboard, rect.x, rect.y, true);
@@ -140,12 +147,12 @@ function addArtboard(name, rect, page) {
 function addBitmap(filePath, parent, name) {
 
 	if (getSketchVersionNumber() >= 340) {
-		var parent = parent ? parent : stage;	
+		var parent = parent ? parent : stage;
 		if(![parent documentData]) {
 			showDialog("Before adding a Bitmap, add its parent to the document.")
 			return
 		}
-		
+
 		var layer = [MSBitmapLayer bitmapLayerWithImageFromPath:filePath]
 		if(!name) name = "Bitmap"
 		[layer setName:name]
@@ -153,25 +160,25 @@ function addBitmap(filePath, parent, name) {
 
 		return layer
 
-	} 
+	}
 	else {
 		var parent = parent ? parent : stage,
 			layer = [MSBitmapLayer new];
-		
+
 		if(![parent documentData]) {
 			showDialog("Before adding a Bitmap, add its parent to the document.")
 			return
 		}
-		
+
 		if(!name) name = "Bitmap"
 		[layer setName:name]
 		[parent addLayers:[layer]]
-			
+
 		var image = [[NSImage alloc] initWithContentsOfFile:filePath]
 		if(image) {
 			var originalImageSize = [image size],
 				fills = [[layer style] fills];
-			
+
 			[layer setConstrainProportions:false]
 			[fills addNewStylePart]
 			[[fills firstObject] setIsEnabled:false]
@@ -184,7 +191,7 @@ function addBitmap(filePath, parent, name) {
 		}
 		return layer;
 	}
-	
+
 }
 
 function addLine(name, parent, startPoint, endPoint, thickness, hex, alpha, blendMode) {
@@ -210,13 +217,13 @@ function addArrowToLine(lineLayer, arrowPosition, arrowSize) {
 	[arrowPath moveToPoint:NSMakePoint(arrowSize.width*m,-arrowSize.height)];
 	[arrowPath lineToPoint:NSMakePoint(0,0)];
 	[arrowPath lineToPoint:NSMakePoint(arrowSize.width*m,arrowSize.height)];
-	
+
 	if (arrowPosition == 0) {
 		[lineLayer bezierPathForStartDecorationOnPath:arrowPath];
 	} else {
 		[lineLayer bezierPathForEndDecorationOnPath:arrowPath];
 	}
-	
+
 }
 
 function addLayer(name, type, parent) {
@@ -373,7 +380,7 @@ function getAllArtboardNames(withPrefix, includePrefixInName) {
 		pages = [doc pages],
 		prefix = withPrefix ? withPrefix : '',
 		p, a, name;
-		
+
 	var loop = [pages objectEnumerator];
 	while (p = [loop nextObject]) {
 		var artboards = [p artboards];
@@ -416,7 +423,7 @@ function getAllPageNames(withPrefix, includePrefixInName) {
 		pages = [doc pages],
 		prefix = withPrefix ? withPrefix : '',
 		p, name;
-		
+
 	var loop = [pages objectEnumerator];
 	while (p = [loop nextObject]) {
 		name = [p name];
@@ -435,7 +442,7 @@ function getLayersWithPrefix(prefix, inGroup) {
 		prefixString = [NSString stringWithFormat:@"%@", prefix],
 		predicate = [NSPredicate predicateWithFormat:@"name BEGINSWITH[cd] %@", prefixString],
 		filteredArray = [children filteredArrayUsingPredicate:predicate];
-	
+
 	return filteredArray;
 }
 
@@ -478,7 +485,7 @@ function setArtboardColor(artboard, hex, alpha, includeInExport) {
 		alpha = (typeof alpha !== 'undefined') ? alpha : 1,
 		includeInExport = (typeof includeInExport !== 'undefined') ? includeInExport : true,
 		color = hexToMSColor(hex);
-		
+
 	[color setAlpha: alpha];
 	[artboard setHasBackgroundColor:true];
 	[artboard setIncludeBackgroundColorInExport:includeInExport];
@@ -499,7 +506,7 @@ function setBorder(layer, thickness, position, hex, alpha, blendMode) {
 		alpha = (typeof alpha !== 'undefined') ? alpha : 1,
 		blendMode = (typeof blendMode !== 'undefined') ? blendMode : 0,
 		color = hexToMSColor(hex);
-	
+
 	[color setAlpha: alpha];
 	if( !isText(layer) ) {
 		var borders = [[layer style] borders];
@@ -521,7 +528,7 @@ function setShadow(layer, offsetX, offsetY, blurRadius, spread, hex, alpha, blen
 		color = hexToMSColor(hex),
 		alpha = (typeof alpha !== 'undefined') ? alpha : .5,
 		blendMode = (typeof blendMode !== 'undefined') ? blendMode : 0;
-		
+
 		[color setAlpha: alpha];
 
 		var shadows = [[layer style] shadows];
@@ -532,7 +539,7 @@ function setShadow(layer, offsetX, offsetY, blurRadius, spread, hex, alpha, blen
 		[[[layer style] shadow] setOffsetY: offsetY];
 		[[[layer style] shadow] setBlurRadius: blurRadius];
 		[[[layer style] shadow] setSpread: spread];
-		
+
 }
 
 function setSize(layer, width, height, absolute) {
@@ -620,14 +627,14 @@ function flattenLayerToBitmap(layer, keepOriginal, scale) {
 		layerRect = getRect(layer),
 		keepOriginal = (typeof keepOriginal !== 'undefined') ? keepOriginal : false,
 		scale = (typeof scale !== 'undefined') ? scale : 1;
-	
+
 	var tempFolderPath = getTempFolderPath();
 	var filePath = tempFolderPath + "/temp.png";
 	exportLayerToPath(layer, filePath, scale);
-	
+
 	var bmp = addBitmap(filePath, parent, "Bitmap");
 	setPosition(bmp, layerRect.x, layerRect.y, true);
-	
+
 	if(!keepOriginal) removeLayer(layer);
 	removeLayer(dup);
 	cleanUpTempFolder(tempFolderPath);
@@ -671,21 +678,22 @@ function removeExportOptions(layer) {
 }
 
 function exportLayerToPath(layer, path, scale, format, suffix) {
+     log(path)
      if(getSketchVersionNumber() >= 410) {
 
      	scale = (typeof scale !== 'undefined') ? scale : 1,
 		suffix = (typeof suffix !== 'undefined') ? suffix : "",
 		format = (typeof format !== 'undefined') ? format : "png"
 
-     	
-           
+
+
             slice = MSExportRequest.exportRequestsFromExportableLayer(layer).firstObject(),
             savePathName = [];
 
         slice.scale = scale;
         slice.format = format;
 
-        
+
         doc.saveArtboardOrSlice_toFile(slice, path);
 
         var rect = layer.absoluteRect().rect()
@@ -698,7 +706,7 @@ function exportLayerToPath(layer, path, scale, format, suffix) {
 		}
 
      }
-    
+
 	if(getSketchVersionNumber() >= 350) {
 
 		var rect = layer.absoluteRect().rect(),
@@ -784,7 +792,7 @@ function organizeArtboardsInPage(page, spacing, numColumns) {
 		maxColumns = numColumns ? numColumns : 0,
 		spacing = (typeof spacing !== 'undefined') ? spacing : 200,
 		i = 0, newX = 0, newY = 0, maxHeight = 0, rect;
-	
+
 	var loop = [artboards objectEnumerator];
 	while (item = [loop nextObject]) {
 		setPosition(item, newX, newY, true);
@@ -804,7 +812,7 @@ function getTopRightCornerOfPage(page, marginX, marginY) {
 		marginX = (typeof marginX !== 'undefined') ? marginX : 0,
 		marginY = (typeof marginY !== 'undefined') ? marginY : 0,
 		newX = 0, newY = 0, rect;
-		
+
 	var loop = [artboards objectEnumerator];
 	while (item = [loop nextObject]) {
 		rect = getRect(item);
@@ -884,7 +892,7 @@ function createAlertBase (addButtons) {
   	var icon = [[NSImage alloc] initByReferencingFile:iconPath];
   	[alert setIcon:icon];
   }
-  
+
   if (typeof addButtons === 'undefined' || addButtons == true) {
 	  [alert addButtonWithTitle: 'OK'];
 	  [alert addButtonWithTitle: 'Cancel'];
@@ -978,24 +986,24 @@ function createRadioButtons (items, numRows, numCols, title, defaultSelection) {
 		matrixRect = NSMakeRect(0, 0, 300, (numRows*22)),
 		numItems = items.length,
 		itemName;
-		
+
 	[buttonCell setTitle:title];
 	[buttonCell setButtonType:NSRadioButton];
-	
+
 	var buttonMatrix = [[NSMatrix alloc] initWithFrame:matrixRect mode:NSRadioModeMatrix prototype:buttonCell numberOfRows:numRows numberOfColumns:numCols],
 		cells = [buttonMatrix cells];
-	
+
 	[buttonMatrix setAutorecalculatesCellSize:true];
 	[buttonMatrix setIntercellSpacing:NSMakeSize(10,10)];
-	
+
 	for (var i = 0; i<numItems; i++) {
 		itemName = items[i];
 		[[cells objectAtIndex:i] setTitle:itemName];
 		[[cells objectAtIndex:i] setTag:(i+100)];
 	}
-	
+
 	[buttonMatrix selectCellWithTag:(defaultSelection+100)];
-	
+
 	return buttonMatrix;
 }
 
@@ -1010,28 +1018,28 @@ function createButtonMatrix (buttonType, items, numRows, numCols, title, default
 		matrixRect = NSMakeRect(0, 0, 300, (numRows*22)),
 		numItems = items.length,
 		itemName;
-		
+
 	[buttonCell setTitle:title];
 	[buttonCell setButtonType:buttonType];
-	
+
 	var matrixMode = multipleSelection ? NSTrackModeMatrix : NSRadioModeMatrix,
 		buttonMatrix = [[NSMatrix alloc] initWithFrame:matrixRect mode:matrixMode prototype:buttonCell numberOfRows:numRows numberOfColumns:numCols],
 		cells = [buttonMatrix cells];
-	
+
 	[buttonMatrix setAutorecalculatesCellSize:true];
 	[buttonMatrix setIntercellSpacing:NSMakeSize(10,10)];
-	
+
 	for (var i = 0; i<numItems; i++) {
 		itemName = items[i];
 		[[cells objectAtIndex:i] setTitle:itemName];
 		[[cells objectAtIndex:i] setTag:(i+100)];
 	}
-	
+
 	var numSelected = defaultSelection.length;
 	for (var i = 0; i<numSelected; i++) {
 		[buttonMatrix selectCellWithTag:(defaultSelection[i]+100)];
 	}
-	
+
 	return buttonMatrix;
 }
 
@@ -1115,7 +1123,7 @@ function getDefault(key) {
 }
 
 function setDefault(key, value) {
-	var defaults = [NSUserDefaults standardUserDefaults], 
+	var defaults = [NSUserDefaults standardUserDefaults],
 		configs  = [NSMutableDictionary dictionary];
 	[configs setObject: value forKey: '-' + pluginDomain + '-' + key];
 	return [defaults registerDefaults: configs];
@@ -1156,9 +1164,9 @@ function dateAsReadableString(date) {
 	var date = date ? date : new Date(),
 		months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 		days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-	
+
 	return days[date.getDay()] + ", " + months[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
-	
+
 }
 
 function getCurrentDateAsString() {
@@ -1249,9 +1257,9 @@ function loadDefaults(initialValues) {
 		  	defaults[key] = dVal;
         log("loadDefaults key "+key+"="+dVal+", type="+(typeof defaults[key]));
      }
-		
+
 		//log("loadDefaults key "+key+"="+typeof defaults[key]);
-		
+
 	}
 	return defaults;
 }
@@ -1279,7 +1287,7 @@ function saveValue(key, value) {
     } else {
       return prefs.stringForKey(keyPref + key);
     }
-   
+
   } catch (e) {
     //log(e);
   }

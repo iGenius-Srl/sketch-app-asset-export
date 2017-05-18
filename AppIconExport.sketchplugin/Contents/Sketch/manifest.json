@@ -1,0 +1,38 @@
+{
+    "name": "App Icon Export",
+    "description": "One key to export Android/iOS App icons.",
+    "author": "iGenius-Srl",
+    "homepage": "https://github.com/iGenius-Srl/sketch-app-asset-export",
+    "version": "0.0.1",
+    "identifier": "net.igenius.sketch-app-icon-export",
+    "compatibleVersion": "0.0.1",
+    "bundleVersion": 1,
+
+    "commands": [{
+            "script": "export.js",
+            "handler": "onExportIconIOS",
+            "shortcut": "",
+            "name": "Export iOS Icons",
+            "identifier": "net.igenius.export-ios-appicon"
+        }, {
+            "script": "export.js",
+            "handler": "onExportIconAndroid",
+            "shortcut": "",
+            "name": "Export Android Icons",
+            "identifier": "net.igenius.export-android-icon"
+        }, {
+            "script": "export.js",
+            "handler": "onExportIcon",
+            "shortcut": "",
+            "name": "Export Android & iOS Icons",
+            "identifier": "net.igenius.export-appicon"
+        }, {
+            "script": "export.js",
+            "handler": "onSetting",
+            "shortcut": "",
+            "name": "Preferences",
+            "identifier": "net.igenius.export-pref"
+        }
+
+    ]
+}
