@@ -344,7 +344,10 @@ function exportIOSIcon(layer){
           version : 1,
           author : "xcode"
         },
-        images : imagesArray
+        images : imagesArray,
+        properties : {
+            "template-rendering-intent" : "template"
+        }
       }
 
 

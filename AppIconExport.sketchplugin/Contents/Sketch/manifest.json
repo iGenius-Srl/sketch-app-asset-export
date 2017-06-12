@@ -3,7 +3,7 @@
     "description": "One key to export Android/iOS App icons.",
     "author": "iGenius-Srl",
     "homepage": "https://github.com/iGenius-Srl/sketch-app-asset-export",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "identifier": "net.igenius.sketch-app-icon-export",
     "compatibleVersion": "0.0.1",
     "bundleVersion": 1,
