@@ -51,7 +51,7 @@ var doc,
     "Small-40","Small-40@2x","Small-40@3x",
     "Small","Small@2x","Small@3x",
     "83.5@2x",
-    "20","20@2x","20@3x"],
+    "20","20@2x","20@3x","1024@1x"],
 
     iOSSizeArray = [
     120,180,
@@ -59,13 +59,15 @@ var doc,
     40,80,120,
     29,58,87,
     167,
-    20,40,60],
+    20,40,60,
+    1024],
     iOSBaseArray = [ 60,60,
     76,76,
     40,40,40,
     29,29,29,
     83.5,
-    20,20,20],
+    20,20,20,
+    1024],
 
     androidDirArray = ["ldpi","mdpi","hdpi","xhdpi","xxhdpi","xxxhdpi"],
     androidSizeArray = [ 36,48,72,96,144,192],
@@ -229,16 +231,22 @@ function findImage(imagesArray,filename){
        }
 
 
-
        var baseSize =  iOSBaseArray[index];
        var sizeStr =  ""+baseSize+"x"+baseSize;
 
          if(suffix.endsWith("@2x"))
-              scale = "2x";
-            else if (suffix.endsWith("@3x"))
-               scale = "3x";
+            scale = "2x";
+         else
+            if (suffix.endsWith("@3x"))
+                scale = "3x";
 
-            var device = (isIpad ? "ipad" : "iphone");
+            var device = ""
+
+            if (isIpad)
+              device = "ipad"
+            else
+              device = (baseSize == "1024")? "ios-marketing" : "iphone"
+
             var filename = fileFormat(name)+"-"+suffix+".png";
 
 
@@ -279,6 +287,7 @@ function exportIphoneContentJson(layer,imagesArray){
 
    addIconContent(imagesArray,name,"60@2x",0);
    addIconContent(imagesArray,name,"60@3x",0);
+   addIconContent(imagesArray,name,"1024@1x", 0);
    // addIconContent(imagesArray,name,"76",0);
    // addIconContent(imagesArray,name,"76@2x",0);
 
@@ -300,7 +309,7 @@ function exportIpadContentJson(layer,imagesArray){
    addIconContent(imagesArray,name,"76",1);
    addIconContent(imagesArray,name,"76@2x",1);
 
-   addIconContent(imagesArray,name,"83.5@2x",1);
+   addIconContent(imagesArray, name,"83.5@2x",1);
 
 }
 
