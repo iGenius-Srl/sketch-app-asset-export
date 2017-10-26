@@ -322,7 +322,7 @@ function exportIOSIcon(layer){
 
    log("exportIOSIcon 11"+getSketchVersionNumber());
 
-      checkExportDir(userDefaults.xcodeProjectPath + "/AppIcon.appiconset");
+      checkExportDir(userDefaults.xcodeProjectPath + "/"+fileFormat(layer.name())+".appiconset");
 
           //输出所需图片
           var imagesArray = [];
